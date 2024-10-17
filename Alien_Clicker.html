@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alien Clicker Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sixtyfour+Convergence&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://img.freepik.com/free-photo/beautiful-clouds-digital-art_23-2151105788.jpg?size=626&ext=jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            font-family: 'Sixtyfour Convergence', sans-serif;
+        }
+        h1 {
+            color: black;
+        }
+        #score {
+            font-size: 24px;
+            margin-top: 20px;
+            color: black;
+            display: inline-block; /* Required for transform to work properly */
+        }
+        #alien {
+            width: 100px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .upgrade-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .upgrade-button:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes scoreBounce {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); } /* Slight bounce height */
+            100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Click the Alien!</h1>
+    <img id="alien" src="https://media.istockphoto.com/id/802004836/vector/alien-face-illustration.jpg?s=612x612&w=0&k=20&c=9eX4gkN2hIGZj9q74TYuUOksdzSSoPeVXQmN8OZy88E=" alt="Alien">
+    <div id="score">Score: 0</div>
+    <button id="upgrade" class="upgrade-button">Buy Auto-Clicker (Cost: 10 points)</button>
+    <button id="click-multiplier" class="upgrade-button">Buy +1 Click Power (Cost: 50 points)</button>
+    <button id="auto-speed-upgrade" class="upgrade-button">Increase Auto-Clicker Speed (Cost: 100 points)</button>
+
+    <script>
+        let score = 0;
+        let pointsPerClick = 1;
+        let autoClickerActive = false;
+        const autoClickCost = 10;
+        let clickMultiplierCost = 50;
+        let autoClickSpeed = 1;
+        let autoClickSpeedCost = 100;
+
+        const scoreDisplay = document.getElementById('score');
+        const alien = document.getElementById('alien');
+        const upgradeButton = document.getElementById('upgrade');
+        const clickMultiplierButton = document.getElementById('click-multiplier');
+        const autoSpeedUpgradeButton = document.getElementById('auto-speed-upgrade');
+
+        // Alien click event listener
+        alien.addEventListener('click', () => {
+            score += pointsPerClick;
+            scoreDisplay.textContent = 'Score: ' + score;
+
+            alien.style.animation = 'bounce 0.2s';
+
+            // Trigger the bounce animation on the score
+            scoreDisplay.style.animation = 'scoreBounce 0.2s'; // Apply the bounce animation
+
+            // Reset the animation after it finishes
+            scoreDisplay.addEventListener('animationend', () => {
+                scoreDisplay.style.animation = ''; // Reset the animation
+            }, { once: true });
+
+            alien.addEventListener('animationend', () => {
+                alien.style.animation = '';
+            }, { once: true });
+        });
+
+        // Auto-clicker purchase
+        upgradeButton.addEventListener('click', () => {
+            if (score >= autoClickCost && !autoClickerActive) {
+                score -= autoClickCost;
+                autoClickerActive = true;
+                scoreDisplay.textContent = 'Score: ' + score;
+                upgradeButton.disabled = true;
+                upgradeButton.textContent = 'Auto-Clicker Purchased!';
+
+                // Start auto-clicking at the current speed
+                setInterval(() => {
+                    if (autoClickerActive) {
+                        score += pointsPerClick * autoClickSpeed;
+                        scoreDisplay.textContent = 'Score: ' + score;
+                    }
+                }, 1000 / autoClickSpeed);
+            }
+        });
+
+        // Click multiplier purchase with exponential cost scaling
+        clickMultiplierButton.addEventListener('click', () => {
+            if (score >= clickMultiplierCost) {
+                score -= clickMultiplierCost;
+                pointsPerClick += 1; // Increase points per click
+                clickMultiplierCost = Math.floor(clickMultiplierCost * 2.5); // Increase cost exponentially
+                scoreDisplay.textContent = 'Score: ' + score;
+                clickMultiplierButton.textContent = `Buy +1 Click Power (Cost: ${clickMultiplierCost} points)`;
+            }
+        });
+
+        // Auto-clicker speed upgrade with exponential cost scaling
+        autoSpeedUpgradeButton.addEventListener('click', () => {
+            if (score >= autoClickSpeedCost && autoClickerActive) {
+                score -= autoClickSpeedCost;
+                autoClickSpeed += 0.5; // Increase auto-click speed by 0.5 clicks per second
+                autoClickSpeedCost = Math.floor(autoClickSpeedCost * 3); // Exponentially increase cost
+                scoreDisplay.textContent = 'Score: ' + score;
+                autoSpeedUpgradeButton.textContent = `Increase Auto-Clicker Speed (Cost: ${autoClickSpeedCost} points)`;
+            }
+        });
+    </script>
+</body>
+</html>
